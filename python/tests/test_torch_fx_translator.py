@@ -81,7 +81,7 @@ def test_dynamic_matmul(runtime, torch_rng_seed):
     print("✅ Test passed!")
 
 
-def test_basic_elementwise(runtime, torch_rng_seed):
+def test_add_elementwise(runtime, torch_rng_seed):
     """Use fixtures defined in conftest.py directly"""
     print(f"Testing with runtime on device: {runtime}")
     print(f"Random seed: {torch_rng_seed}")
@@ -107,9 +107,87 @@ def test_basic_elementwise(runtime, torch_rng_seed):
     # Get outputs
     outputs = translator.get_outputs()
 
+    # Compare with PyTorch native result
+    with torch.no_grad():
+        expected = torch.add(*input_tensors)
+
     # Verify
     assert len(outputs) == 1
     assert outputs[0].shape == (3, 5, 4)
+    torch.testing.assert_close(outputs[0], expected)
+    print("✅ Test passed!")
+
+
+def test_mul_elementwise(runtime, torch_rng_seed):
+    """Use fixtures defined in conftest.py directly"""
+    print(f"Testing with runtime on device: {runtime}")
+    print(f"Random seed: {torch_rng_seed}")
+
+    # Create simple model
+    class MulModel(torch.nn.Module):
+        def forward(self, x, y):
+            return x * y
+
+    model = MulModel()
+    # Randomly initialize inputs, passed shapes can differ from actual values, but data types must match
+    input_info = [((5, 4), "float32"), ((3, 5, 1), "float32")]
+    input_tensors = [
+        torch.as_tensor(np.random.randn(*shape).astype(dtype))
+        for shape, dtype in input_info
+    ]
+
+    # Create translator
+    translator = TorchFXTranslator(runtime)
+    translator.import_from_fx(model, input_tensors)
+
+    translator.run(input_tensors)
+    # Get outputs
+    outputs = translator.get_outputs()
+
+    # Compare with PyTorch native result
+    with torch.no_grad():
+        expected = torch.mul(*input_tensors)
+
+    # Verify
+    assert len(outputs) == 1
+    assert outputs[0].shape == (3, 5, 4)
+    torch.testing.assert_close(outputs[0], expected)
+    print("✅ Test passed!")
+
+def test_sub_elementwise(runtime, torch_rng_seed):
+    """Use fixtures defined in conftest.py directly"""
+    print(f"Testing with runtime on device: {runtime}")
+    print(f"Random seed: {torch_rng_seed}")
+
+    # Create simple model
+    class SubModel(torch.nn.Module):
+        def forward(self, x, y):
+            return x - y
+
+    model = SubModel()
+    # Randomly initialize inputs, passed shapes can differ from actual values, but data types must match
+    input_info = [((5, 4), "float32"), ((3, 5, 1), "float32")]
+    input_tensors = [
+        torch.as_tensor(np.random.randn(*shape).astype(dtype))
+        for shape, dtype in input_info
+    ]
+
+    # Create translator
+    translator = TorchFXTranslator(runtime)
+    translator.import_from_fx(model, input_tensors)
+
+    translator.run(input_tensors)
+    # Get outputs
+    outputs = translator.get_outputs()
+
+    # Compare with PyTorch native result
+    with torch.no_grad():
+        expected = torch.sub(*input_tensors)
+
+    # Verify
+    assert len(outputs) == 1
+    assert outputs[0].shape == (3, 5, 4)
+    torch.testing.assert_close(outputs[0], expected)
     print("✅ Test passed!")
 
 
