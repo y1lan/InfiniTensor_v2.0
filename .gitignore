@@ -45,3 +45,5 @@ InfiniCore/
 *.onnx
 *.pb
 *.npy
+.xmake
+compile_commands.json
