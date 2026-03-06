@@ -30,3 +30,12 @@ def convert_sub(translator, node):
     a = translator.tensors[node.args[0]]
     b = translator.tensors[node.args[1]]
     translator.tensors[node] = translator.builder.sub(a, b, None)
+
+@registry.register("clip", "Tensor")
+def convert_clip(translator, node):
+    # all of three arguments exist even they are None
+    a = translator.tensors[node.args[0]]
+    b = translator.tensors[node.args[1]]
+    c = translator.tensors[node.args[2]]
+    translator.tensors[node] = translator.builder.clip(a, b, c, None)
+

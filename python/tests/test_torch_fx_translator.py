@@ -154,6 +154,7 @@ def test_mul_elementwise(runtime, torch_rng_seed):
     torch.testing.assert_close(outputs[0], expected)
     print("✅ Test passed!")
 
+
 def test_sub_elementwise(runtime, torch_rng_seed):
     """Use fixtures defined in conftest.py directly"""
     print(f"Testing with runtime on device: {runtime}")
@@ -189,6 +190,41 @@ def test_sub_elementwise(runtime, torch_rng_seed):
     assert outputs[0].shape == (3, 5, 4)
     torch.testing.assert_close(outputs[0], expected)
     print("✅ Test passed!")
+
+
+def test_basic_clip(runtime, torch_rng_seed):
+    """Use fixtures defined in conftest.py directly"""
+    print(f"Testing with runtime on device: {runtime}")
+    print(f"Random seed: {torch_rng_seed}")
+
+    class ClipModel(torch.nn.Module):
+        def forward(self, x, min, max):
+            return torch.clip(x, min, max)
+
+    model = ClipModel()
+    input_info = [((5, 4), "float32"), ((1, 4), "float32"), ((1, 4), "float32")]
+    input_tensors = [
+        torch.as_tensor(np.random.randn(*shape).astype(dtype))
+        for shape, dtype in input_info
+    ]
+
+    input_tensors[1] = input_tensors[1] - 1.0
+    input_tensors[2] = input_tensors[2] + 1.0
+
+    translator = TorchFXTranslator(runtime)
+    translator.import_from_fx(model, input_tensors)
+
+    translator.run(input_tensors)
+    outputs = translator.get_outputs()
+
+    with torch.no_grad():
+        expected = torch.clip(*input_tensors)
+
+    assert len(outputs) == 1
+    assert outputs[0].shape == expected.shape
+    torch.testing.assert_close(outputs[0], expected)
+    print("✅ Test passed!")
+
 
 
 if __name__ == "__main__":

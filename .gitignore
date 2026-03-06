@@ -47,3 +47,4 @@ InfiniCore/
 *.npy
 .xmake
 compile_commands.json
+.cache/
