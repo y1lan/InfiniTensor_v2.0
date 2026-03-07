@@ -1,6 +1,5 @@
 #include "core/graph_builder.h"
 #include "core/runtime.h"
-#include "operators/Clip.h"
 #include <algorithm>
 #include <cstring>
 #include <limits>
@@ -153,6 +152,18 @@ Tensor GraphBuilderObj::clip(Tensor Input, std::optional<Tensor> MinVal,
     }
 }
 
+#define DEFINE_UNARY_OP(OP, TYPE)                                              \
+    Tensor GraphBuilderObj::OP(Tensor Input, std::optional<Tensor> Output) {   \
+        if (Output.has_value()) {                                              \
+            g->addOpWithOutputs<UnaryObj>(TYPE, std::move(Input),              \
+                                          std::move(Output.value()));          \
+            return Output.value();                                             \
+        } else {                                                               \
+            return g->addOp<UnaryObj>(TYPE, std::move(Input), nullptr)         \
+                ->getOutput(0);                                                \
+        }                                                                      \
+    }
+
 #define DEFINE_BINARY_OP(OP, TYPE)                                             \
     Tensor GraphBuilderObj::OP(Tensor A, Tensor B, std::optional<Tensor> Y) {  \
         if (Y.has_value()) {                                                   \
@@ -170,6 +181,13 @@ Tensor GraphBuilderObj::clip(Tensor Input, std::optional<Tensor> MinVal,
 DEFINE_BINARY_OP(add, OpType::Add);
 DEFINE_BINARY_OP(sub, OpType::Sub);
 DEFINE_BINARY_OP(mul, OpType::Mul);
+
+DEFINE_UNARY_OP(relu, OpType::Relu);
+DEFINE_UNARY_OP(sigmoid, OpType::Sigmoid);
+DEFINE_UNARY_OP(gelu, OpType::Gelu);
+DEFINE_UNARY_OP(silu, OpType::Silu);
+DEFINE_UNARY_OP(softplus, OpType::Softplus);
+DEFINE_UNARY_OP(tanh, OpType::Tanh);
 
 string GraphBuilderObj::printGraph() const { return g->toString(); }
 

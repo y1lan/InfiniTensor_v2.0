@@ -20,6 +20,11 @@ struct OpType {
         Relu,
         Sub,
         Transpose,
+        Sigmoid,
+        Silu,
+        Gelu,
+        Softplus,
+        Tanh,
 
     } type;
 
@@ -38,15 +43,21 @@ struct OpType {
         switch (type) {
             CASE(Unknown);
             CASE(Add);
-            CASE(Sub);
-            CASE(Mul);
-            CASE(Div);
             CASE(Cast);
             CASE(Clip);
-            CASE(Relu);
-            CASE(Transpose);
             CASE(Concat);
+            CASE(Div);
+            CASE(Gemm);
+            CASE(Mul);
             CASE(MatMul);
+            CASE(Relu);
+            CASE(Sub);
+            CASE(Transpose);
+            CASE(Sigmoid);
+            CASE(Silu);
+            CASE(Gelu);
+            CASE(Softplus);
+            CASE(Tanh);
 
         default:
             return "Unknown";

@@ -1,4 +1,5 @@
 #pragma once
+#include <pybind11/pytypes.h>
 #ifndef PYTHON_GRAPH_HPP
 #define PYTHON_GRAPH_HPP
 #include "core/graph_builder.h"
@@ -29,6 +30,18 @@ void bind_graph_builder(py::module &m) {
              py::arg("Y") = py::none())
         .def("clip", &GraphBuilderObj::clip, py::arg("Input"),
              py::arg("MinVal") = py::none(), py::arg("MaxVal") = py::none(),
+             py::arg("Output") = py::none())
+        .def("relu", &GraphBuilderObj::relu, py::arg("Input"),
+             py::arg("Output") = py::none())
+        .def("sigmoid", &GraphBuilderObj::sigmoid, py::arg("Input"),
+             py::arg("Output") = py::none())
+        .def("gelu", &GraphBuilderObj::gelu, py::arg("Input"),
+             py::arg("Output") = py::none())
+        .def("silu", &GraphBuilderObj::silu, py::arg("Input"),
+             py::arg("Output") = py::none())
+        .def("softplus", &GraphBuilderObj::softplus, py::arg("Input"),
+             py::arg("Output") = py::none())
+        .def("tanh", &GraphBuilderObj::tanh, py::arg("Input"),
              py::arg("Output") = py::none())
         .def("to_string", &GraphBuilderObj::printGraph)
         .def_property_readonly("graph", &GraphBuilderObj::getGraph);
